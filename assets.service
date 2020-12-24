@@ -1,0 +1,16 @@
+[Unit]
+Description=assets
+After=rc-local.service
+
+[Service]
+WorkingDirectory=/home/ueda/assets
+ExecStart=/bin/sh -c './asset >> /var/log/atelierueda/assets.log 2>&1'
+Restart=always
+RestartSec=30
+Type=simple
+PIDFile=/var/run/assets.pid
+StandardOutput=/var/log/assets/assets.log
+StandardError=/var/log/assets/assets.error.log
+
+[Install]
+WantedBy=multi-user.target
