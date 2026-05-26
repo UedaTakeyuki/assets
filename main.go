@@ -8,16 +8,20 @@ import (
 	//	"fmt"
 	//	"log"
 	"flag"
+	"io"
+	"log"
+	"net/http"
 
-	"github.com/danielkov/gin-helmet"
+	// "github.com/danielkov/gin-helmet"
+	"github.com/danielkov/gin-helmet/ginhelmet"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/pelletier/go-toml"
 )
 
-//const DataFileJson = "idTable.json"
-//const DataFileCSV = "idTable.csv"
+// const DataFileJson = "idTable.json"
+// const DataFileCSV = "idTable.csv"
 type Mode struct {
 	// SQLite recovery mode: Fetch from faunaDB in case SQLite NOT return data
 	isSQLiteRecovery bool // SQLite recovery mode:
@@ -53,6 +57,21 @@ func main() {
 
 	// routes
 	r := gin.Default()
+
+	///////////////////////////////////////
+	// trast HTTP Headers from own server
+	///////////////////////////////////////
+	resp, err := http.Get("https://inet-ip.info/ip")
+	if err == nil {
+		body, _ := io.ReadAll(resp.Body)
+		log.Println("Global IP:", string(body))
+		r.SetTrustedProxies([]string{"127.0.0.1", string(body) + "/24"})
+	}
+	defer resp.Body.Close()
+
+	// set trusted proxy to trust X-Forwarded-For header
+	//	r.SetTrustedProxies([]string{"127.0.0.1", "49.212.217.145/24"})
+
 	//r.Static("/assets", "./assets")
 	r.Use(static.Serve("/", static.LocalFile("./assets", false)))
 	//	r.LoadHTMLGlob("templates/*.html")
@@ -69,7 +88,8 @@ func main() {
 			//		MaxAge: 12 * time.Hour,
 		}))
 	*/
-	r.Use(helmet.NoCache())
+	//	r.Use(helmet.NoCache())
+	r.Use(ginhelmet.NoCache())
 
 	r.GET("/ping", func(c *gin.Context) {
 		pong(c)
