@@ -4,13 +4,14 @@ After=rc-local.service
 
 [Service]
 WorkingDirectory=/home/ueda/github/assets
-ExecStart=/bin/bash -c './asset >> /var/log/atelierueda/assets.log 2>&1'
+#ExecStart=/bin/bash -c './asset >> /var/log/atelierueda/assets.log 2>&1'
+ExecStart=/home/ueda/github/assets/asset
 Restart=always
 RestartSec=30
 Type=simple
 PIDFile=/var/run/assets.pid
-StandardOutput=/var/log/assets/assets.log
-StandardError=/var/log/assets/assets.error.log
+StandardOutput=append:/var/log/atelierueda/assets.log
+StandardError=append:/var/log/atelierueda/assets.error.log
 
 [Install]
 WantedBy=multi-user.target
